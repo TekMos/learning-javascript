@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier Maker</title>
+    <style>
+        :root {
+            --color-s: #ff7f80;
+            --color-a: #ffb380;
+            --color-b: #ffdb80; 
+            --color-c: #ffff80;
+            --color-d: #b3ff80;
+            --color-e: #80ff80;
+        }
+        *,
+        *::before,
+        *::after {
+            /*Todo el documento considera el padding para las medidas*/
+            box-sizing: border-box;
+        }
+        button {
+            background: transparent;
+            border: 0;
+            color: #fff;
+            cursor: pointer;
+        }
+        body {
+            background: #222;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: white;
+            max-width: 720px;
+            margin: 0 auto;
+            padding-inline: 32px;
+            user-select: none;
+        }
+        #top-header {
+            text-align: center;
+            font-weight: bolder;
+            font-size: 2rem;
+            letter-spacing: .2rem;
+            padding: 8px;
+        }
+        .tier {
+            border: #ccc solid 1px;
+            display: flex;
+            flex-direction: column;
+            background: #2f2f2f;
+        }
+        .row {
+            display: flex;
+            flex-direction: row;
+            border-bottom: #222 solid 1px;
+        }
+        .label {
+            /* Uso custom properties para pintar el label
+            Estas se asignan directamente en la línea
+            Usando el atributo style */
+            background: var(--color, #09f);
+            color: #222;
+            font-weight: bolder;
+            width: 56px;
+            height: 56px;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            & span {
+                cursor: pointer;
+            }
+            & span:focus {
+                outline: 1px solid #fff;
+            }
+        }
+
+        #selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        #selector-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            
+            & button,
+            & label {
+                cursor: pointer;
+                transition: all .3s ease;
+                background: #2f2f2f;
+                width: 40px;
+                height: 40px;
+                padding: 4px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                &:hover {
+                    scale: 1.1;
+                    background: #444;
+                }
+                & svg {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+        }
+        #selector-items {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            border: #2f2f2f solid 1px;
+            height: 100px;
+        }
+    </style>
+
+    <script type="module">
+        // Type module para cargar el script de forma asíncrona
+        
+    </script>
+</head>
+<body>
+    <header id="top-header">TIERMAKER</header>
+    
+    <section class="tier">
+        <div class="row">
+            <aside class="label" style="--color: var(--color-s)">
+                <span contenteditable="true">S</span>
+            </aside>
+        </div>
+
+        <div class="row">
+            <aside class="label" style="--color: var(--color-a)">
+                <span contenteditable="true">A</span>
+            </aside>
+        </div>
+
+        <div class="row">
+            <aside class="label" style="--color: var(--color-b)">
+                <span contenteditable="true">B</span>
+            </aside>
+        </div>
+
+        <div class="row">
+            <aside class="label" style="--color: var(--color-c)">
+                <span contenteditable="true">C</span>
+            </aside>
+        </div>
+
+        <div class="row">
+            <aside class="label" style="--color: var(--color-d)">
+                <span contenteditable="true">D</span>
+            </aside>
+        </div>
+
+        <div class="row">
+            <aside class="label" style="--color: var(--color-e)">
+                <span contenteditable="true">E</span>
+            </aside>
+        </div>
+    </section>
+
+    <footer id="selector">
+        <section id="selector-buttons">
+            <label id="btn-add">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
+                <input id="image-input" type="file" hidden>
+            </label>
+            <button class="btn-reset">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh-dot"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+            </button>
+        </section>
+        <section id="selector-items">
+            
+        </section>
+    </footer>
+</body>
+</html>
