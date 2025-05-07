@@ -29,7 +29,7 @@
             background: #222;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             color: white;
-            max-width: 720px;
+            max-width: 666px;
             margin: 0 auto;
             padding-inline: 32px;
             user-select: none;
@@ -123,7 +123,11 @@
             width: 100%;
             border: #ccc solid 1px;
             background: #2f2f2f;
-            height: 100px;
+            min-height: 102px;
+            &.drag-over {
+                background: #444;
+                border-style: dashed;
+            }
         }
         .img-item {
             width: 50px;
@@ -131,7 +135,6 @@
             background: #fff;
             object-fit: cover;
             cursor: grab;
-            margin-right: 1px;
             &.drag-preview {
                 opacity: .4;
                 pointer-events: none;
@@ -146,6 +149,7 @@
         const imageInput = $('#image-input')
         const itemSection = $('#selector-items')
         const buttonReset = $('.btn-reset')
+        const buttonSave = $('.btn-save')
 
         function createElement(src) {
             // Crea un elemento imagen
@@ -161,7 +165,7 @@
             return imgElement
         }
 
-        function filesToCreateElements(files) {
+        function useFilesToCreateElements(files) {
             // Verifica que se haya seleccionado una imagen
             if(files && files.length > 0) {
                 // Recorre el array de imágenes y crea un elemento imagen por cada una
@@ -181,7 +185,7 @@
         imageInput.addEventListener('change', (event) => {
             // Selecciona las imágenes y las guarda en un array
             const { files }= event.target
-            filesToCreateElements(files)
+            useFilesToCreateElements(files)
         })
         let draggedItem = null
         // Para saber desde donde se arrastra el elemento
@@ -189,7 +193,7 @@
         // Detectar cada row
         const rows = $$('.tier .row')
 
-        // Recorrer cada row y agregarle los eventos para estilar
+        // Recorrer cada row y agregarle los eventos para controlar el drag and drop
         rows.forEach(row => {
             row.addEventListener('drop', handleDrop)
             row.addEventListener('dragover', handleDragOver)
@@ -202,11 +206,38 @@
         itemSection.addEventListener('dragover', handleDragOver)
         itemSection.addEventListener('dragleave', handleDragLeave)
 
+        // Agregar los eventos para arrastrar archivos desde el escritorio
+        itemSection.addEventListener('drop', handleDropFromDesktop)
+        itemSection.addEventListener('dragover', handleDragOverFromDesktop)
+
+        function handleDragOverFromDesktop(event) {
+            event.preventDefault()
+            const { currentTarget, dataTransfer } = event
+            // Si el dataTransfer tiene el tipo archivo, agrega la clase drag-over
+            if(dataTransfer.types.includes('Files')) {
+                currentTarget.classList.add('drag-over')
+            }
+        }
+
+        function handleDropFromDesktop(event) {
+            event.preventDefault()
+            const { currentTarget, dataTransfer } = event
+            if(dataTransfer.types.includes('Files')) {
+                currentTarget.classList.remove('drag-over')
+                // Obtengo los archivos del dataTransfer y los uso para crear los elementos
+                const { files } = dataTransfer
+                // Verifica que el elemento no se arrastre desde el mismo contenedor
+                console.log(sourceContainer)
+                if(sourceContainer == null)                
+                useFilesToCreateElements(files)
+            }
+        }
+
         function handleDrop(event) {
             event.preventDefault()
-            // Verifica que el elemento arrastrado no sea el mismo que el que se está soltando 
             const { currentTarget, dataTransfer } = event
-            
+            // Verifica que tengamos un elemento arrastrado y un contenedor de origen
+
             if (sourceContainer && draggedItem) {
                 // Elimina el elemento arrastrado del contenedor de origen
                 sourceContainer.removeChild(draggedItem)
@@ -269,6 +300,34 @@
                 itemSection.appendChild(item)
             })
         })
+
+        buttonSave.addEventListener('click', () => {
+            const tier = $('.tier')
+            const footer = $('#selector')
+            // En este canvas se va a dibujar lo que queremos guardar
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+
+            // Importamos dinamicamente la dependencia html2canvas pro como ESM
+            import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.10/+esm')
+            .then(({ default: html2canvas }) => {
+                html2canvas(footer, {
+                    backgroundColor: '#222',
+                }).then(canvas => {
+                    // En el contexto del canvas dibujamos el canvas que nos devuelve html2canvas
+                    ctx.drawImage(canvas, 0, 0)
+                    // Convertimos el canvas a una imagen en formato png
+                    const imgUrl = canvas.toDataURL('image/png')
+
+                    // Creamos un enlace para descargar la imagen
+                    const link = document.createElement('a')
+                    link.download = 'tier-list.png'
+                    link.href = imgUrl
+                    // Simulamos un click en el enlace
+                    link.click()
+                })
+            })
+        })
     </script>
 </head>
 <body>
@@ -320,6 +379,9 @@
             </label>
             <button class="btn-reset">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh-dot"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+            </button>
+            <button class="btn-save">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
             </button>
         </section>
         <section id="selector-items">
