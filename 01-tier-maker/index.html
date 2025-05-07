@@ -113,14 +113,45 @@
             flex-wrap: wrap;
             gap: 8px;
             width: 100%;
-            border: #2f2f2f solid 1px;
+            border: #ccc solid 1px;
+            background: #2f2f2f;
             height: 100px;
+        }
+        .img-item {
+            width: 48px;
+            height: 48px;
+            object-fit: cover;
         }
     </style>
 
     <script type="module">
-        // Type module para cargar el script de forma asíncrona
+        const $ = el => document.querySelector(el)
+        const $$ = els => document.querySelectorAll(els)
         
+        const imageInput = $('#image-input')
+        const itemSection = $('#selector-items')
+
+        imageInput.addEventListener('change', (event) => {
+            // Selecciona las imágenes y las guarda en un array
+            const [file] = event.target.files
+            // Verifica que se haya seleccionado una imagen
+            if(file) {
+                // Crea un reader para leer el archivo (esto es una api de JS)
+                const reader = new FileReader()
+                //Cuando el reader termine de leer el archivo, se ejecuta la función
+                reader.onload = (eventReader) => {
+                    console.log(eventReader.target.result)
+                    // Crea un elemento de imagen y le asigna la url de la imagen
+                    const imgElement = document.createElement('img')
+                    imgElement.src = eventReader.target.result
+                    imgElement.className = 'img-item'
+                    // Agrega una nueva imagen al contenedor
+                    itemSection.appendChild(imgElement)
+                }
+                reader.readAsDataURL(file)
+            }
+
+        })
     </script>
 </head>
 <body>
@@ -168,7 +199,7 @@
         <section id="selector-buttons">
             <label id="btn-add">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-                <input id="image-input" type="file" hidden>
+                <input accept="image/*" id="image-input" type="file" hidden>
             </label>
             <button class="btn-reset">
                 <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh-dot"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
