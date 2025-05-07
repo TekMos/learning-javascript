@@ -86,7 +86,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 16px;
             margin-top: 16px;
         }
 
@@ -94,6 +93,7 @@
             display: flex;
             flex-direction: row;
             gap: 16px;
+            margin-bottom: 16px;
             
             & button,
             & label {
@@ -117,6 +117,7 @@
             }
         }
         #selector-items {
+            position: relative;
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
@@ -127,6 +128,38 @@
             &.drag-over {
                 background: #444;
                 border-style: dashed;
+                & .placeholder {
+                    opacity: .3;
+                    & p {
+                        scale: 1.1;
+                        transform: translateY(-2px);
+                    }
+                    & svg {
+                        scale: 1.2;
+                        transform: rotate(-5deg);
+                    }
+                }
+            }
+            & .placeholder {
+                z-index: 1;
+                opacity: .7;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                & p {
+                    font-weight: 500;
+                    text-align: center;
+                    margin-bottom: 8px;
+                    margin-top: -2px;
+                    transition: all .3s ease;
+                }
+                & svg {
+                    transition: all .3s ease;
+                }
             }
         }
         .img-item {
@@ -135,9 +168,40 @@
             background: #fff;
             object-fit: cover;
             cursor: grab;
+            z-index: 2;
             &.drag-preview {
                 opacity: .4;
                 pointer-events: none;
+            }
+        }
+        #selector-bin {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            place-content: center;
+            align-items: center;
+            transition: all .3s ease;
+            &.drag-bin {
+                background: #ff7f80;
+                border-style: dashed;
+                & svg {
+                    scale: 1.2;
+                    transform: rotate(-5deg);
+                }
+            }
+            & svg {
+                transition: all .3s ease;
+            }
+        }
+        .credits {
+            margin-top: 8px;
+            & p {
+                font-size: .8rem;
+                font-weight: 500;
+                & a {
+                    color: #0fd355;
+                }
             }
         }
     </style>
@@ -148,6 +212,8 @@
 
         const imageInput = $('#image-input')
         const itemSection = $('#selector-items')
+        const binSection = $('#selector-bin')
+        const placeholder = $('.placeholder')
         const buttonReset = $('.btn-reset')
         const buttonSave = $('.btn-save')
 
@@ -210,6 +276,10 @@
         itemSection.addEventListener('drop', handleDropFromDesktop)
         itemSection.addEventListener('dragover', handleDragOverFromDesktop)
 
+        binSection.addEventListener('dragover', handleOverBin)
+        binSection.addEventListener('dragleave', handleLeaveBin)
+        binSection.addEventListener('drop', handleDropBin)
+
         function handleDragOverFromDesktop(event) {
             event.preventDefault()
             const { currentTarget, dataTransfer } = event
@@ -228,16 +298,16 @@
                 const { files } = dataTransfer
                 // Verifica que el elemento no se arrastre desde el mismo contenedor
                 console.log(sourceContainer)
-                if(sourceContainer == null)                
-                useFilesToCreateElements(files)
+                // Con null verificamos que se arrastre desde el escritorio y no desde el contenedor de items
+                if(sourceContainer == null) useFilesToCreateElements(files)
             }
         }
 
         function handleDrop(event) {
             event.preventDefault()
             const { currentTarget, dataTransfer } = event
+            
             // Verifica que tengamos un elemento arrastrado y un contenedor de origen
-
             if (sourceContainer && draggedItem) {
                 // Elimina el elemento arrastrado del contenedor de origen
                 sourceContainer.removeChild(draggedItem)
@@ -251,6 +321,7 @@
             }
             currentTarget.classList.remove('drag-over')
             currentTarget.querySelector('.drag-preview')?.remove()
+            
         }
 
         function handleDragOver(event) {
@@ -262,6 +333,7 @@
 
             const dragPreview = document.querySelector('.drag-preview')
             if(draggedItem && !dragPreview) {
+                // Clona el elemento arrastrado y lo agrega al contenedor de destino
                 const previewItem = draggedItem.cloneNode(true)
                 previewItem.classList.add('drag-preview')
                 currentTarget.appendChild(previewItem)
@@ -293,6 +365,42 @@
             sourceContainer = null
         }
 
+        function handleOverBin(event) {
+            event.preventDefault()
+            const { currentTarget } = event
+            if(draggedItem) {
+                // Si el elemento arrastrado es un elemento de imagen, agrega la clase drag-bin
+                currentTarget.classList.add('drag-bin')
+            }
+        }
+
+        function handleLeaveBin(event) {
+            event.preventDefault()
+            const { currentTarget } = event
+            currentTarget.classList.remove('drag-bin')
+        }
+
+        function handleDropBin(event) {
+            event.preventDefault()
+            const { currentTarget } = event
+
+            if(sourceContainer && draggedItem) {
+                // Elimina el elemento arrastrado del contenedor de origen
+                sourceContainer.removeChild(draggedItem)
+                currentTarget.classList.remove('drag-bin')
+            }
+        }
+
+        /*itemSection.addEventListener('change', () => {
+            const items1 = $$('#selector-items.img-item')
+            console.log(items1)
+            if(items.length == 0) {
+                placeholder.style.display = 'flex'
+            } else {
+                placeholder.style.display = 'none'
+            }
+        })*/
+
         buttonReset.addEventListener('click', () => {
             const items = $$('.tier .img-item')
             items.forEach(item => {
@@ -303,7 +411,6 @@
 
         buttonSave.addEventListener('click', () => {
             const tier = $('.tier')
-            const footer = $('#selector')
             // En este canvas se va a dibujar lo que queremos guardar
             const canvas = document.createElement('canvas')
             const ctx = canvas.getContext('2d')
@@ -311,7 +418,7 @@
             // Importamos dinamicamente la dependencia html2canvas pro como ESM
             import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.10/+esm')
             .then(({ default: html2canvas }) => {
-                html2canvas(footer, {
+                html2canvas(tier, {
                     backgroundColor: '#222',
                 }).then(canvas => {
                     // En el contexto del canvas dibujamos el canvas que nos devuelve html2canvas
@@ -385,9 +492,17 @@
             </button>
         </section>
         <section id="selector-items">
-            
+            <div class="placeholder">
+                <p>Suelta tus imágenes aquí</p>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-upload"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 11v6" /><path d="M9.5 13.5l2.5 -2.5l2.5 2.5" /></svg>
+            </div>
         </section>
-        <p>Hecho con entusiasmo por TekMos 🤎</p>
+        <section id="selector-bin">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+        </section>
+        <section class="credits">
+            <p>Hecho con entusiasmo por <a href="https://github.com/TekMos" target="_blank">TekMos</a> 🤎</p>
+        </section>
     </footer>
 </body>
 </html>
