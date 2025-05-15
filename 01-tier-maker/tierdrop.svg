@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1701.5244">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #ff9100;
+      }
+
+      .cls-2 {
+        font-size: 750px;
+      }
+
+      .cls-2, .cls-3, .cls-6, .cls-7 {
+        fill: #16113a;
+      }
+
+      .cls-2, .cls-3 {
+        font-family: NeutrafaceText-Bold, Neutraface Text;
+        font-weight: 700;
+      }
+
+      .cls-3 {
+        font-size: 380px;
+      }
+
+      .cls-4 {
+        letter-spacing: -0.01em;
+      }
+
+      .cls-5 {
+        letter-spacing: -0.015em;
+      }
+
+      .cls-7 {
+        opacity: 0.2;
+      }
+    </style>
+  </defs>
+  <g id="Bg2">
+    <rect class="cls-1" width="1600" height="1600"/>
+  </g>
+  <g id="js">
+    <text class="cls-2" transform="translate(749.6348 1489.2705)">JS</text>
+    <text class="cls-3" transform="translate(830.0742 383.021)"><tspan class="cls-4">T</tspan><tspan x="221.1602" y="0">ier</tspan><tspan x="-150.1016" y="270.4272">D</tspan><tspan class="cls-5" x="110.1973" y="270.4272">r</tspan><tspan x="253.457" y="270.4272">op</tspan></text>
+  </g>
+  <g id="TierMaker">
+    <rect class="cls-6" x="105" y="115" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="247.1471" y="115" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="105" y="267.2157" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="247.1471" y="267.2157" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="389.2941" y="267.2157" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="105" y="571.6471" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="247.1471" y="571.6471" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="389.2941" y="571.6471" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="531.4412" y="267.2157" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-7" x="389.2941" y="419.4314" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-7" x="531.4412" y="419.4314" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-7" x="389.2941" y="115" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-7" x="531.4412" y="115" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-7" x="531.4412" y="571.6471" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="105" y="419.4314" width="126.3529" height="126.3529" rx="12"/>
+    <rect class="cls-6" x="247.1471" y="419.4314" width="126.3529" height="126.3529" rx="12"/>
+  </g>
+</svg>
