@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.svg" type="image/x-icon">
+    <title>Moto Scroll con JS</title>
+    <style>
+        *, *::after, *::before {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+        }
+        header {
+            background: linear-gradient(60deg, #c74c20, #a41705 38%);
+            border-radius: 50%;
+            height: 420px;
+            width: 420px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            margin-top: -260px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            animation: slideInDown 1s ease-out forwards;
+            img {
+                margin: 0 auto;
+                width: 260px;
+                height: auto;
+                margin-bottom: 80px;
+            }
+        }
+        main {
+            height: 300vh;
+            img {
+                margin: 0;
+                width: 100vw;
+                height: 100vh;
+                object-fit: cover;
+                position: fixed;
+            }
+        }
+        @keyframes slideInDown {
+            from {
+                transform: translate3d(-50%, -100%, 0);
+            }
+            to {
+                transform: translate3d(-50%, 0, 0);
+            }
+        }
+        footer {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            position: fixed;
+            bottom: 0;
+            z-index: 10;
+            height: 120px;
+            background: #ccc;
+            display: flex;
+            align-items: center;
+            place-content: center;
+            padding: 8px;
+            p {
+                font-size: .8rem;
+                font-weight: 500;
+                a {
+                    color: #0fd355;
+                }
+            }
+        }
+    </style>
+
+    <script type="module">
+        import { images } from './images.js'
+        
+        const maxFrames = 150
+        const main = document.querySelector('main')
+        const img = document.querySelector('#img')
+        let currentFrame = 0
+
+        // Función para actualizar las imágenes
+        function updateImage(frame) {
+            const src = images[frame].p
+            img.src = src
+        }
+        // Incializamos la primera imagen
+        /*const img = document.createElement('img')
+        main.appendChild(img)*/
+        updateImage(currentFrame)
+        
+        // Restamos la altura total del documento menos lo que ya se está viendo en la ventana
+        // Para obtener la altura máxima de scroll
+        let maxScroll = document.documentElement.scrollHeight - window.innerHeight
+        
+        // Actualiza el max scroll cada vez que hay un resize de altura o anchura
+        window.addEventListener('resize', () => {
+            maxScroll = document.documentElement.scrollHeight - window.innerHeight
+        })
+
+        window.addEventListener('scroll', () => {
+            // Posición actual del scroll
+            const scrollPosition = window.scrollY
+            // Calcular porcentaje del scroll
+            const scrollPercentage = scrollPosition/maxScroll
+            // Saber qué frame corresponde
+            const frame = Math.floor(scrollPercentage * maxFrames);
+            // Ejecuta el cambio solo cuando sea necesario
+            if(currentFrame !== frame) {
+                // Creamos el id del archivo
+                updateImage(frame)
+                currentFrame = frame
+            }
+        })
+    </script>
+</head>
+<body>
+    <header>
+        <img src="logo.png" alt="Ichiban - Your way to Freedommm">
+    </header>
+    <main>
+        <img id="img" src="frames/0.webp" alt=""/>
+    </main>
+    <footer>
+        <p>Hecho con entusiasmo por <a href="https://github.com/TekMos" target="_blank">TekMos</a></p>
+    </footer>
+</body>
+</html>
