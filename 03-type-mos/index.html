@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.svg" type="image/x-icon">
+    <title>TypeMos</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --green: #00b755;
+            --yellow: #daaf38;
+            --red: #ca4754;
+            --black: #222;
+            --gray: #999;
+        }
+
+        *,
+        *::after,
+        *::before {
+            box-sizing: border-box;
+        }
+
+        body {
+            user-select: none;
+            background: var(--black);
+            color: white;
+            font-family: monospace;
+            padding: 16px;
+            display: grid;
+            justify-content: center;
+        }
+
+        header {
+            display: flex;
+            place-content: center;
+            font-size: 1.5rem;
+        }
+
+        section {
+            font-size: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            place-content: center;
+            gap: 4px;
+            max-width: 720px;
+            margin-top: 32px;
+
+            time {
+                color: var(--yellow);
+            }
+
+            input {
+                z-index: -10;
+                position: absolute;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+                opacity: 0;
+            }
+
+            p {
+                margin: 0;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px 16px;
+            }
+        }
+
+        #game {
+            display: flex;
+        }
+
+        #results {
+            display: none;
+            align-items: center;
+        }
+        h2 {
+            font-weight: normal;
+            margin: 0;
+            color: var(--gray);
+        }
+        h3 {
+            font-size: 5rem;
+            font-weight: normal;
+            color: var(--yellow);
+            margin: -12px 0;
+        }
+        #reloadBtn {
+            margin-top: 16px;
+            background: transparent;
+            border: none;
+            display: grid;
+            place-content: center;
+            height: 36px;
+            width: 60px;
+            border-radius: 4px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all .3s ease;
+            &:hover {
+                color: var(--black);
+                background: var(--gray);
+            }
+        }
+
+        t-word {
+            border-bottom: 1.5px solid transparent;
+            transition: border-color .3s ease;
+
+            &.good {
+                & t-letter {
+                    color: white;
+                }
+            }
+
+            &.error {
+                border-color: var(--red);
+            }
+        }
+
+        t-letter {
+            color: var(--gray);
+            position: relative;
+
+            &.active::before {
+                position: absolute;
+                content: '|';
+                color: var(--yellow);
+                left: -50%;
+                animation: blink 1s ease infinite;
+            }
+
+            &.active.last::before {
+                left: 50%;
+            }
+
+            &.correct {
+                color: var(--green);
+            }
+
+            &.incorrect {
+                color: var(--red)
+            }
+        }
+
+        @keyframes blink {
+            15%, 85% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            & p {
+                font-size: .8rem;
+                font-weight: 400;
+                & a {
+                    color: #0fd355;
+                }
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <h1>TypeMos Games</h1>
+    </header>
+    <main>
+        <section id="game">
+            <time></time>
+            <p></p>
+            <input id="input" autofocus>
+        </section>
+        <section id="results">
+            <h2>wpm</h2>
+            <h3 id="results-wpm"></h3>
+            <h2>acc</h2>
+            <h3 id="results-acc"></h3>
+            <button id="reloadBtn">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+            </button>
+        </section>
+    </main>
+    <footer>
+        <p>Hecho con entusiasmo por <a href="https://github.com/TekMos" target="_blank">TekMos</a> 🤎</p>
+    </footer>
+</body>
+<!--Script debajo para forzar el DOMContentLoaded-->
+<script type="module">
+    import { words as INITIAL_WORDS } from './data.js'
+
+    const $ = el => document.querySelector(el)
+
+    const $time = $('time')
+    const $paragraph = $('p')
+    const $input = $('#input')
+    const $game = $('#game')
+    const $results = $('#results')
+    const $wpm = $('#results-wpm')
+    const $acc = $('#results-acc')
+    const $reloadBtn = $('#reloadBtn')
+
+    const INITIAL_TIME = 15
+
+    let words = []
+    let currentTime = INITIAL_TIME
+    let playing
+
+    initGame()
+    initEvents()
+
+    function initGame() {
+        // Reset de valores
+        $game.style.display = 'flex'
+        $results.style.display = 'none'
+        $input.value = ''
+        /* Utiliza el array de data.js
+        toSorted() para mantenerlo en string
+        Compara dos elementos a y b
+        Si recibe parámetro negativo, pondrá b antes que a
+        Si recibe parámetro positivo, pondrá a antes que b
+        */ 
+        words = INITIAL_WORDS.toSorted(
+            // Math.random devuelve un valor entre 0 y 1
+            // Al restar 0.5 algunas veces será negativo y otras positivo
+            () => Math.random() - 0.5
+        ).slice(0, 50)
+
+        currentTime = INITIAL_TIME
+
+        $time.textContent = currentTime
+
+        playing = false
+
+        $paragraph.innerHTML = words.map((word, index) => {
+            // Separa las letras de cada palabra
+            const letters = word.split('')
+
+            // Devuelve etiquetas personalizadas
+            return `<t-word>
+                ${letters
+                    .map(letter => `<t-letter>${letter}</t-letter>`)
+                    .join('')}
+                </t-word>`
+        }).join('') // Evita que aparezca , para separar el array
+
+        // Cambiamos la clase de la primera palabra
+        // No se puede usar el $ en lugar de querySelector
+        const $firstWord = $paragraph.querySelector('t-word')
+        $firstWord.classList.add('active')
+        $firstWord.querySelector('t-letter').classList.add('active')
+
+        
+    }
+    function initEvents() {
+        // En algunos navegadores puede que no funcione autofocus
+        document.addEventListener('keydown', inputFocus)
+        $input.addEventListener('keydown', onKeyDown)
+        $input.addEventListener('keyup', onKeyUp)
+        $reloadBtn.addEventListener('click', initGame)
+    }
+
+    function inputFocus(event) {
+        // Veificamos que no gane foco con el espacio ' '
+        const { key } = event
+        if(key === ' '){
+            event.preventDefault()
+        }
+        $input.focus()
+        if(!playing) {
+            // Cambiamos a true para no acelerar conteo cada vez que gana focus el input
+            playing = true
+            // Esto es como una función pero se ejecuta después
+            // Toda function se "ejecuta al principio del script"
+            const intervalId = setInterval(() => {
+                currentTime--
+                $time.textContent = currentTime
+
+                if (currentTime === 0) {
+                    // Detiene el conteo
+                    clearInterval(intervalId)
+                    gameOver()
+                }
+            }, 1000)
+        }
+    }
+
+    function onKeyDown(event) {
+        const $currentWord = $paragraph.querySelector('t-word.active')
+        const $currentLetter = $currentWord.querySelector('t-letter.active')
+
+        // Key recibe el valor de la tecla presionada en el evento
+        const { key } = event
+
+        if (key === ' ' && $input.value.trim().length > 0) {
+            // Verifica que el input tenga algo escrito
+            event.preventDefault()
+            // Selecciona el siguiente elemento hermano de currentWord
+            const $nextWord = $currentWord.nextElementSibling
+            // Selecciona primera letra de sgte palabra
+            //TODO: Poner un verificador si ya no hay más palabras
+            const $nextLetter = $nextWord.querySelector('t-letter')
+
+            // Quitamos el error por si lo hemos arreglado
+            $currentWord.classList.remove('active', 'error')
+            $currentLetter.classList.remove('active')
+
+            $nextWord.classList.add('active')
+            $nextLetter.classList.add('active')
+
+            //Reseteamos el input cada espacio ' '
+            $input.value = ''
+
+            const hasError = $currentWord.querySelectorAll('t-letter:not(.correct)').length > 0
+            const classToAdd = hasError ? 'error' : 'good'
+            $currentWord.classList.add(classToAdd)
+            return
+
+        }
+
+        if (key === 'Backspace') {
+            // Selecciona el elemento hermano previo de currentWord
+            const $prevWord = $currentWord.previousElementSibling
+            // Selecciona última letra de anterior palabra
+            const $prevLetter = $currentLetter.previousElementSibling
+
+            if (!$prevWord && !$prevLetter) {
+                event.preventDefault()
+                return
+            }
+
+            const wordError = $paragraph.querySelector('t-word.error')
+            if (wordError && !$prevLetter) {
+                // Prevenir que borre la última letra
+                event.preventDefault()
+
+                // querySelectorAll naturalmente es un NodeList
+                // Así lo transformamos en Array
+                const $allPrevLetters = [...$prevWord.querySelectorAll('t-letter.correct, t-letter.incorrect')]
+
+                $prevWord.classList.remove('error', 'good')
+                $prevWord.classList.add('active')
+                $currentWord.classList.remove('active')
+
+                // Última letra de la palabra para ir
+                // Actualizar el puntero
+                const $letterGo = $prevWord.querySelector('t-letter:last-child')
+                $currentLetter.classList.remove('active')
+                $letterGo.classList.add('active')
+
+                $input.value =
+                    $allPrevLetters
+                        .map($el => {
+                            return $el.classList.contains('correct') ?
+                                $el.innerText : '*'
+                        })
+                        .join('')
+            }
+        }
+    }
+
+    // TODO: Esto debería moverse a onKeyDown
+    function onKeyUp() {
+        // Recuperar elementos actuales
+        const $currentWord = $paragraph.querySelector('t-word.active')
+        const $currentLetter = $currentWord.querySelector('t-letter.active')
+
+        // Todas las letras de la palabra actual
+        const $allLetters = $currentWord.querySelectorAll('t-letter')
+        // Array de palabra ingresada en el input
+        const currentWord = $currentWord.innerText.trim()
+
+        // Limitamos el input según la palabra actual
+        $input.maxLength = currentWord.length;
+
+        // Limpiar correcto e incorrecto de las letras
+        $allLetters.forEach($letter => $letter.classList.remove('correct', 'incorrect'))
+
+        // Recorrer lo ingresado y comparar
+        $input.value.split('').forEach((char, index) => {
+            const $letter = $allLetters[index]
+            const letterToCheck = currentWord[index]
+
+            const letterClass = char == letterToCheck ? 'correct' : 'incorrect'
+            $letter.classList.add(letterClass)
+        })
+
+        // Mover el cursor (.active::before)
+        $currentLetter.classList.remove('active', 'last')
+        const inputLength = $input.value.length
+        const $nextActiveLetter = $allLetters[inputLength]
+        if (!$nextActiveLetter) {
+            $currentLetter.classList.add('active', 'last')
+        } else {
+            $nextActiveLetter.classList.add('active')
+            //TODO: gameover si no hay más palabras
+        }
+
+    }
+
+    function gameOver() {
+        $game.style.display = 'none'
+        $results.style.display = 'flex'
+
+        const pp = els => $paragraph.querySelectorAll(els)
+
+        const goodWords = pp('t-word.good').length
+        const correctLetters = pp('t-letter.correct').length
+        const incorrectLetters = pp('t-letter.incorrect').length
+
+        const totalLetters = correctLetters + incorrectLetters
+        const wpm = goodWords / INITIAL_TIME * 60
+        const accuracy = totalLetters > 0 ?
+        (correctLetters / totalLetters) * 100 : 0
+
+        $wpm.textContent = wpm
+        $acc.textContent = `${Math.round(accuracy)}%`
+    }
+</script>
+
+</html>
