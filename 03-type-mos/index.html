@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../favicon.svg" type="image/x-icon">
-    <title>TypeMos</title>
+    <title>Typemos</title>
     <style>
         :root {
             color-scheme: light dark;
@@ -23,19 +23,59 @@
         }
 
         body {
+            max-width: 832px;
+            margin: 0 auto;
             user-select: none;
             background: var(--black);
             color: white;
             font-family: monospace;
-            padding: 16px;
-            display: grid;
-            justify-content: center;
+            padding-inline: 16px;
         }
 
         header {
+            text-align: center;
             display: flex;
-            place-content: center;
+            flex-direction: column;
+            align-items: center;
             font-size: 1.5rem;
+        }
+
+        nav {
+            background: #2a2a2a;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            place-content: center;
+            align-items: center;
+            min-height: 40px;
+            width: 100%;
+            & span {
+                width: 3px;
+                height: 22px;
+                background: var(--gray);
+                border-radius: 1.5px;
+            }
+        }
+
+        ul {
+            padding: 4px 16px;
+            margin: 0;
+            display: flex;
+            gap: 24px;
+            place-content: center;
+            font-size: .8em;
+            & li {
+                cursor: pointer;
+                color: var(--gray);
+                list-style: none;
+                transition: color .3s ease;
+                &:hover {
+                    color: white;
+                }
+                &.active {
+                    color: var(--yellow);
+                }
+            }
         }
 
         section {
@@ -44,13 +84,10 @@
             flex-direction: column;
             place-content: center;
             gap: 4px;
-            max-width: 720px;
             margin-top: 32px;
-
             time {
                 color: var(--yellow);
             }
-
             input {
                 z-index: -10;
                 position: absolute;
@@ -59,12 +96,12 @@
                 pointer-events: none;
                 opacity: 0;
             }
-
             p {
                 margin: 0;
                 display: flex;
                 flex-wrap: wrap;
                 gap: 4px 16px;
+                gap: .2lh .5lh;
             }
         }
 
@@ -75,6 +112,29 @@
         #results {
             display: none;
             align-items: center;
+        }
+        .dataDiv {
+            padding: 8px;
+            display: grid;
+            align-items: center;
+            grid-template-columns: repeat(2, 1fr);
+            text-align: center;
+        }
+        .mainData {
+            margin: 0;
+        }
+        .extraData {
+            & h2 {
+                font-size: 1.5rem;
+                margin-top: 8px;
+                &:first-child {
+                    margin: 0;
+                }
+            }
+            & h3 {
+                font-size: 2rem;
+                margin: 0;
+            }
         }
         h2 {
             font-weight: normal;
@@ -87,9 +147,16 @@
             color: var(--yellow);
             margin: -12px 0;
         }
-        #reloadBtn {
+        
+
+        .buttonDiv {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+        }
+        button {
             margin-top: 16px;
-            background: transparent;
+            background: #2a2a2a;
             border: none;
             display: grid;
             place-content: center;
@@ -108,13 +175,11 @@
         t-word {
             border-bottom: 1.5px solid transparent;
             transition: border-color .3s ease;
-
             &.good {
                 & t-letter {
                     color: white;
                 }
             }
-
             &.error {
                 border-color: var(--red);
             }
@@ -123,7 +188,6 @@
         t-letter {
             color: var(--gray);
             position: relative;
-
             &.active::before {
                 position: absolute;
                 content: '|';
@@ -131,15 +195,12 @@
                 left: -50%;
                 animation: blink 1s ease infinite;
             }
-
             &.active.last::before {
                 left: 50%;
             }
-
             &.correct {
                 color: var(--green);
             }
-
             &.incorrect {
                 color: var(--red)
             }
@@ -155,13 +216,14 @@
         }
 
         footer {
-            position: absolute;
+            text-align: center;
+            font-size: .8rem;
+            position: fixed;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             & p {
-                font-size: .8rem;
-                font-weight: 400;
+                
                 & a {
                     color: #0fd355;
                 }
@@ -173,22 +235,52 @@
 
 <body>
     <header>
-        <h1>TypeMos Games</h1>
+        <h1>Typemos Games</h1>
+        <nav>
+            <ul id="select-lang">
+                <li data-lang="en" class="active">english</li>
+                <li data-lang="es">español</li>
+                <li data-lang="fr">français</li>
+            </ul>
+            <span class="select-separator"></span>
+            <ul id="select-time">
+                <li data-time="15" class="active">15</li>
+                <li data-time="30">30</li>
+                <li data-time="60">60</li>
+            </ul>
+        </nav>
     </header>
     <main>
         <section id="game">
             <time></time>
             <p></p>
-            <input id="input" autofocus>
+            <input id="input" autofocus autocomplete="off">
         </section>
         <section id="results">
-            <h2>wpm</h2>
-            <h3 id="results-wpm"></h3>
-            <h2>acc</h2>
-            <h3 id="results-acc"></h3>
-            <button id="reloadBtn">
-                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
-            </button>
+            <div class="dataDiv">
+                <div class="mainData">
+                    <h2>wpm</h2>
+                    <h3 id="results-wpm"></h3>
+                    <h2>acc</h2>
+                    <h3 id="results-acc"></h3>
+                </div>
+                <div class="extraData">
+                    <h2>test type</h2>
+                    <h3 id="results-type"></h3>
+                    <h2>characters</h2>
+                    <h3 id="results-char"></h3>
+                    <h2>date</h2>
+                    <h3 id="results-date"></h3>
+                </div>
+            </div>
+            <div class="buttonDiv">
+                <button id="reloadBtn">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
+                </button>
+                <button id="screenBtn">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-photo-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M12 21h-6a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v7" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l3 3" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0" /><path d="M16 22l5 -5" /><path d="M21 21.5v-4.5h-4.5" /></svg>
+                </button>
+            </div>
         </section>
     </main>
     <footer>
@@ -197,7 +289,7 @@
 </body>
 <!--Script debajo para forzar el DOMContentLoaded-->
 <script type="module">
-    import { words as INITIAL_WORDS } from './data.js'
+    import { words as INIT_WORDS} from './data.js'
 
     const $ = el => document.querySelector(el)
 
@@ -208,10 +300,16 @@
     const $results = $('#results')
     const $wpm = $('#results-wpm')
     const $acc = $('#results-acc')
+    const $type = $('#results-type')
+    const $chars = $('#results-char')
+    const $date = $('#results-date')
     const $reloadBtn = $('#reloadBtn')
+    const $screenBtn = $('#screenBtn')
+    const $selectTime = $('#select-time')
+    const $selectLang = $('#select-lang')
+    let INITIAL_TIME = $selectTime.querySelector('li.active').dataset.time
 
-    const INITIAL_TIME = 15
-
+    let currentLang = 'en'
     let words = []
     let currentTime = INITIAL_TIME
     let playing
@@ -224,59 +322,89 @@
         $game.style.display = 'flex'
         $results.style.display = 'none'
         $input.value = ''
+
+        // Actualizar el lenguaje
+        $selectLang.querySelectorAll('li').forEach($li => {
+            $li.addEventListener('click', () => {
+                // Actualizar el lenguaje activo
+                $selectLang.querySelector('li.active').classList.remove('active')
+                $li.classList.add('active')
+                // Obtenemos el lenguaje del data-lang
+                const selectedLang = $li.dataset.lang
+                currentLang = selectedLang
+                renderWords(currentLang)
+            })
+        })
+        // Renderizar inglés por defecto
+        renderWords(currentLang)
+        
+        // Actualiza el tiempo
+        $selectTime.querySelectorAll('li').forEach($li => {
+            $li.addEventListener('click', () => {
+                $selectTime.querySelector('li.active').classList.remove('active')
+                $li.classList.add('active')
+
+                currentTime = $li.dataset.time
+                $time.textContent = currentTime
+            })
+        })
+
+        // Valor por defecto 15
+        $time.textContent = currentTime
+
+        // Cuando el juego se inicializa el estado playing es falso
+        playing = false
+    }
+
+    function renderWords(language) {
         /* Utiliza el array de data.js
-        toSorted() para mantenerlo en string
+        toSorted() conserva en string los datos
         Compara dos elementos a y b
         Si recibe parámetro negativo, pondrá b antes que a
         Si recibe parámetro positivo, pondrá a antes que b
         */ 
-        words = INITIAL_WORDS.toSorted(
-            // Math.random devuelve un valor entre 0 y 1
-            // Al restar 0.5 algunas veces será negativo y otras positivo
+        words = INIT_WORDS[language].toSorted(
             () => Math.random() - 0.5
         ).slice(0, 50)
-
-        currentTime = INITIAL_TIME
-
-        $time.textContent = currentTime
-
-        playing = false
 
         $paragraph.innerHTML = words.map((word, index) => {
             // Separa las letras de cada palabra
             const letters = word.split('')
 
-            // Devuelve etiquetas personalizadas
+            // Crea las palabras y las letras dentro de cada una
             return `<t-word>
                 ${letters
                     .map(letter => `<t-letter>${letter}</t-letter>`)
                     .join('')}
                 </t-word>`
-        }).join('') // Evita que aparezca , para separar el array
+        }).join('') // Evita que aparezca coma(,) para de separación
 
         // Cambiamos la clase de la primera palabra
-        // No se puede usar el $ en lugar de querySelector
         const $firstWord = $paragraph.querySelector('t-word')
         $firstWord.classList.add('active')
         $firstWord.querySelector('t-letter').classList.add('active')
-
-        
     }
+
     function initEvents() {
         // En algunos navegadores puede que no funcione autofocus
         document.addEventListener('keydown', inputFocus)
         $input.addEventListener('keydown', onKeyDown)
         $input.addEventListener('keyup', onKeyUp)
         $reloadBtn.addEventListener('click', initGame)
+        $screenBtn.addEventListener('click', screenShot)
     }
 
     function inputFocus(event) {
-        // Veificamos que no gane foco con el espacio ' '
+        // Veificamos que no gane foco con teclas especiales
         const { key } = event
-        if(key === ' '){
+        if(key === ' ' || event.ctrlKey || event.altKey || event.shiftKey || key === 'Meta'){
             event.preventDefault()
+            return
         }
+        // Gana el foco
         $input.focus()
+        // Si no está jugando, no se inicia el contador
+        // En initGame() esto cambia para iniciar el conteo
         if(!playing) {
             // Cambiamos a true para no acelerar conteo cada vez que gana focus el input
             playing = true
@@ -302,13 +430,13 @@
         // Key recibe el valor de la tecla presionada en el evento
         const { key } = event
 
+        // Verifica que el input tenga algo escrito
         if (key === ' ' && $input.value.trim().length > 0) {
-            // Verifica que el input tenga algo escrito
+            //TODO: Poner un verificador si ya no hay más palabras
             event.preventDefault()
             // Selecciona el siguiente elemento hermano de currentWord
             const $nextWord = $currentWord.nextElementSibling
             // Selecciona primera letra de sgte palabra
-            //TODO: Poner un verificador si ya no hay más palabras
             const $nextLetter = $nextWord.querySelector('t-letter')
 
             // Quitamos el error por si lo hemos arreglado
@@ -325,7 +453,6 @@
             const classToAdd = hasError ? 'error' : 'good'
             $currentWord.classList.add(classToAdd)
             return
-
         }
 
         if (key === 'Backspace') {
@@ -405,26 +532,75 @@
             $nextActiveLetter.classList.add('active')
             //TODO: gameover si no hay más palabras
         }
-
     }
 
     function gameOver() {
+        // Mostramos resultados
         $game.style.display = 'none'
         $results.style.display = 'flex'
+        // Actualizo el tiempo al ejecutar el game over
+        INITIAL_TIME = $selectTime.querySelector('li.active').dataset.time
 
         const pp = els => $paragraph.querySelectorAll(els)
-
+        
+        // Obtenmos datos del párrafo
         const goodWords = pp('t-word.good').length
         const correctLetters = pp('t-letter.correct').length
         const incorrectLetters = pp('t-letter.incorrect').length
 
+        const initTime = $selectTime.querySelector('li.active').textContent
+        const initLang = $selectLang.querySelector('li.active').textContent
+        const myDate = new Date()
+        // Formatear la fecha
+        const currentDate = myDate.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        }) + ' ' + myDate.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+
+        // Calculamos los resultados
         const totalLetters = correctLetters + incorrectLetters
         const wpm = goodWords / INITIAL_TIME * 60
         const accuracy = totalLetters > 0 ?
         (correctLetters / totalLetters) * 100 : 0
 
+        // Mostramos los resultados
         $wpm.textContent = wpm
         $acc.textContent = `${Math.round(accuracy)}%`
+        $type.textContent = `time ${initTime} - ${initLang}`
+        $chars.textContent = `${correctLetters}/${incorrectLetters}/0`
+        $date.textContent = currentDate
+    }
+
+    function screenShot() {
+        const data = $('.dataDiv')
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+
+        // HTML2Canvas Pro
+        import('https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.10/+esm')
+        .then(({default: html2canvas}) => {
+            setTimeout(() => {
+                html2canvas(data, {
+                    backgroundColor: '#222',
+                    scale: 1.5
+                }).then(canvas => {
+                    // Dibujamos una imagen a partir del contexto del canvas
+                    //ctx.drawImage(canvas, 0, 0)
+                    const imgUrl = canvas.toDataURL('image/png')
+
+                    // Crear enlace para descargar canvas
+                    const link = document.createElement('a')
+                    link.download = 'typemos-results.png'
+                    link.href = imgUrl
+                    // Simular el click para el anchor
+                    link.click()
+                })
+            }, 200) // Darle tiempo para renderizar
+        })
     }
 </script>
 
