@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../favicon.svg" type="image/x-icon">
+    <title>poogle - Buscar con poogle</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --blue: #1a0dbe;
+            --purple: #681dbb;
+            --black: #1f1f1f;
+            --gray: #70757a;
+            --lightGray: #ccc;
+        }
+        *, *::after, *::before {
+            box-sizing: border-box;
+        }
+        body {
+            position: relative;
+            min-height: 100vh;
+            user-select: none;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 2px;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        h3 {
+            font-weight: normal;
+            color: var(--blue);
+        }
+        img {
+            pointer-events: none;
+        }
+        .header {
+            display: flex;
+            flex-direction: row;
+            align-items: start;
+            gap: 36px;
+            padding-top: 36px;
+            padding-inline: 32px;
+            border-bottom: 1px solid var(--lightGray);
+        }
+        .header .logo {
+            padding-top: 4px;
+        }
+        .header section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 720px;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 8px 0 var(--lightGray);
+            border-radius: 24px;
+            min-height: 44px;
+            padding-inline: 16px;
+            margin-left: -12px;
+            position: relative;
+            & aside {
+                position: absolute;
+                right: 0;
+                padding-inline: 12px;
+            }
+        }
+        nav {
+            margin-top: 32px;
+            width: 100%;
+            max-width: 720px;
+            & ul{
+                display: flex;
+                list-style: none;
+                justify-content: space-between;
+                margin: 0;
+                padding: 0;
+            }
+            & li {
+                cursor: pointer;
+                letter-spacing: .5px;
+                font-weight: 600;
+                font-size: .85em;
+                color: var(--gray);
+                padding-bottom: 8px;
+                transition: .3s ease;
+                border-bottom: 3px solid transparent;
+                &:hover {
+                    color: var(--black);
+                }
+                &.active {
+                    color: var(--black);
+                    border-color: var(--black);
+                }
+            }
+        }
+        main {
+            margin-top: 32px;
+            margin-left: 160px;
+            max-width: 720px;
+        }
+        main section {
+            display: none;
+            visibility: hidden;
+            &.visible {
+                display: block;
+                visibility: visible;
+            }
+        }
+        article header {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            align-items: center;
+        }
+        article a {
+            margin: 0;
+            &:hover {
+                & h3 {
+                    text-decoration: 2px underline;
+                }
+            }
+        }
+        .mini-logo {
+            border: 1px solid var(--lightGray);
+            border-radius: 50%;
+            aspect-ratio: 1;
+            padding: 2px;
+            display:  grid;
+            place-content: center;
+        }
+        .mini-title {
+            display: flex;
+            flex-direction: column;
+        }
+        article p {
+            line-height: 1.5;
+            color: var(--gray);
+        }
+        /* Estilos de imágenes #images*/
+        #images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding-inline: 20px;
+            width: 100vw;
+            margin-left: -160px;
+        }
+        #images #dialog {
+            user-select: none;
+            position: relative;
+            background: white;
+            max-width: 720px;
+            max-height: 720px;
+            padding: 0;
+            border: none;
+            &::backdrop {
+                background: rgba(0, 0, 0, .7);
+            }
+            & img {
+                margin: 0 auto;
+                display: block;
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: cover;
+            }
+            & #close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                border: none;
+                color: var(--gray);
+                background: var(--lightGray);
+                aspect-ratio: 1;
+                border-radius: 100%;
+                display: grid;
+                place-content: center;
+                padding: 4px;
+                transition: all .3s ease;
+                &:hover {
+                    color: var(--purple);
+                    transform: rotate(90deg);
+                }
+            }
+        }
+        .container {
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #fff;
+            & img {
+                width: 100%;
+                height: 180px;
+                object-fit: contain;
+            }
+            &:hover {
+                img {
+                    background: var(--lightGray);
+                }
+                .img-tag small {
+                    text-decoration: underline;
+                }
+            }
+        }
+        .img-tag {
+            padding: 8px 10px;
+            & p {
+                margin: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                width: 100%;
+                height: 25px;
+            }
+        }
+        footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px;
+            padding-left: 160px;
+            background: #f2f2f2;
+            color: var(--gray);
+            font-size: .85em;
+            & p {
+                margin: .8lh;
+            }
+        }
+        .data {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            & #country {
+                font-weight: normal;
+            }
+            & #direction {
+                font-weight: bold;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <svg height="30" viewBox="0 0 92 30" width="92" xmlns="http://www.w3.org/2000/svg">
+                <path d="M38.9 15.51c0 4.26-3.32 7.39-7.4 7.39s-7.4-3.14-7.4-7.39c0-4.28 3.32-7.39 7.4-7.39s7.4 3.1 7.4 7.39zm-3.24 0c0-2.66-1.93-4.48-4.16-4.48-2.23 0-4.16 1.82-4.16 4.48 0 2.63 1.93 4.48 4.16 4.48 2.23 0 4.16-1.85 4.16-4.48z" fill="#EA4335"></path><path d="M11.96 22.98C5.63 22.98.31 17.83.31 11.5S5.63.02 11.96.02c3.5 0 5.99 1.37 7.87 3.16L17.62 5.4c-1.34-1.26-3.16-2.24-5.66-2.24-4.62 0-8.23 3.72-8.23 8.34 0 4.62 3.61 8.34 8.23 8.34 3 0 4.7-1.2 5.79-2.3.9-.9 1.49-2.2 1.74-4.17H12v-3.14h10.52c.11.56.17 1.23.17 1.96 0 2.35-.64 5.49-2.72 7.56-2.02 2.11-4.59 3.23-8.01 3.23z" fill="#4285F4"></path><path d="M54.9 15.51c0 4.26-3.32 7.39-7.4 7.39s-7.4-3.14-7.4-7.39c0-4.28 3.32-7.39 7.4-7.39s7.4 3.1 7.4 7.39zm-3.24 0c0-2.66-1.93-4.48-4.16-4.48-2.23 0-4.16 1.82-4.16 4.48 0 2.63 1.93 4.48 4.16 4.48 2.23 0 4.16-1.85 4.16-4.48z" fill="#FBBC05"></path><path d="M70 8.56v13.27c0 5.46-3.05 7.7-6.86 7.7-3.58 0-5.74-2.41-6.55-4.37l2.83-1.18c.5 1.2 1.74 2.63 3.72 2.63 2.44 0 3.78-1.51 3.78-4.34v-1.06h-.11c-.73.9-2.04 1.68-3.81 1.68-3.7 0-7-3.22-7-7.36 0-4.17 3.3-7.42 7-7.42 1.76 0 3.08.78 3.81 1.65h.11v-1.2H70zm-2.86 6.97c0-2.6-1.74-4.51-3.95-4.51-2.24 0-3.95 1.9-3.95 4.51 0 2.58 1.71 4.45 3.95 4.45 2.22.01 3.95-1.87 3.95-4.45z" fill="#4285F4"></path><path d="M75 1.17V22.9h-3V1.17h3z" fill="#34A853"></path><path d="M87.5 17.94l2.48 1.68c-.8 1.2-2.73 3.28-6.06 3.28-4.13 0-7.22-3.25-7.22-7.39 0-4.4 3.11-7.39 6.86-7.39 3.78 0 5.62 3.05 6.23 4.7l.31.85-9.71 4.08c.74 1.48 1.9 2.24 3.53 2.24s2.76-.82 3.58-2.05zm-7.63-2.66l6.5-2.74c-.36-.92-1.43-1.57-2.7-1.57-1.62 0-3.88 1.46-3.8 4.31z" fill="#EA4335"></path>
+            </svg>
+        </div>
+        <section>
+            <div class="search-bar">
+                <span contenteditable="true">Mi familia</span>
+                <aside>
+                    <button>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                    </button>
+                    <button>
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                    </button>
+                </aside>
+            </div>
+            <nav>
+                <ul>
+                    <li data-section="todo" class="active">Todo</li>
+                    <li data-section="images">Imágenes</li>
+                    <li data-section="news">Noticias</li>
+                    <li data-section="finance">Finanzas</li>
+                    <li data-section="more">Más...</li>
+                </ul>
+            </nav>
+        </section>
+        <aside>
+            <button>
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-grid-dots"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M19 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+            </button>
+        </aside>
+    </header>
+    <main>
+        <section id="todo" class="visible">
+            <article>
+                <a href="#" target="_blank">
+                    <header>
+                        <div class="mini-logo">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="#0866FF"  class="icon icon-tabler icons-tabler-filled icon-tabler-brand-facebook"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 2a1 1 0 0 1 .993 .883l.007 .117v4a1 1 0 0 1 -.883 .993l-.117 .007h-3v1h3a1 1 0 0 1 .991 1.131l-.02 .112l-1 4a1 1 0 0 1 -.858 .75l-.113 .007h-2v6a1 1 0 0 1 -.883 .993l-.117 .007h-4a1 1 0 0 1 -.993 -.883l-.007 -.117v-6h-2a1 1 0 0 1 -.993 -.883l-.007 -.117v-4a1 1 0 0 1 .883 -.993l.117 -.007h2v-1a6 6 0 0 1 5.775 -5.996l.225 -.004h3z" /></svg>
+                        </div>
+                        <div class="mini-title">
+                            <span>Facebook</span>
+                            <small>https://facebook.com</small>
+                        </div>
+                    </header>
+                    <h3>
+                        Familia Moscol Muñoz en Facebooky
+                    </h3>
+                </a>
+                <p>
+                    Esta <b>familia</b> es bien chévere a la firme, un poco enfermitos pero eso los hace más chéveres incluso. Ya le meteré más info después.
+                </p>
+            </article>
+        </section>
+        <section id="images">
+            <div class="container">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Googleplex_HQ_%28cropped%29.jpg/1200px-Googleplex_HQ_%28cropped%29.jpg" alt="">
+                <div class="img-tag">
+                    <small>Moscolpedia</small>
+                    <p>Imagen de google sacado del alt de la imagen</p>
+                </div>
+            </div>
+            <div class="container">
+                <img src="https://blog.orange.es/wp-content/uploads/sites/4/2023/02/doodles-google-01.jpg" alt="">
+                <div class="img-tag">
+                    <small>Moscolpedia</small>
+                    <p>Imagen de google sacado del alt de la imagen</p>
+                </div>
+            </div>
+            <div class="container">
+                <img src="https://lh3.googleusercontent.com/qdVzknB7ZFrwcDS1ch2d8GbJLzQtcglQiLeBFfoptCWfUggG_WNVASwpdOp8CXJvsJgYmq4Hf6y1VPnxIhpgsU3bS_w1RdZgDg" alt="">
+                <div class="img-tag">
+                    <small>Moscolpedia</small>
+                    <p>Imagen de google sacado del alt de la imagen</p>
+                </div>
+            </div>
+            <dialog id="dialog">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Googleplex_HQ_%28cropped%29.jpg/1200px-Googleplex_HQ_%28cropped%29.jpg" alt="">
+                <button id="close">
+                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+                </button>
+            </dialog>
+        </section>
+    </main>
+    <footer>
+        <p>Los resultados son inalterables (Por el momento)</p>
+        <div class="data">
+            <p id="country">Perú</p>
+            <p id="direction">Ubicación apróximada obtenida de tu IP</p>
+        </div>
+        <p class="credits">Hecho con amor por Israel 💙</p>
+    </footer>
+</body>
+<script type="module">
+    const $ = el => document.querySelector(el)
+
+    const $nav = $('nav')
+    const $body = $('body')
+    const $main = $('main')
+    const $todo = $('#todo')
+    const $images = $('#images')
+    const $dialog = $('#dialog')
+
+    initEvents()
+    changePage()
+    showModal()
+
+    function initEvents() {
+    }
+    
+    function changePage() {
+        const $items = $nav.querySelectorAll('li')
+        const $sections = $main.querySelectorAll('section')
+
+        $items.forEach($item => {
+            $item.addEventListener('click', () => {
+                // Desactivar todos los items excepto el seleccionado
+                $items.forEach(li => li.classList.remove('active'))
+                $item.classList.add('active')
+
+                // Ocultar todas las secciones
+                $sections.forEach(sect => sect.classList.remove('visible'))
+
+                // Mostrar la sección activa
+                const sectionId = $item.dataset.section
+                const $section = $main.querySelector(`#${sectionId}`)
+                $section.classList.add('visible')
+            })
+        })
+    }
+    function showModal() {
+        const $conts = $images.querySelectorAll('.container')
+        const $close = $dialog.querySelector('#close')
+
+        $conts.forEach($cont => {
+            // Obtener la imagen del container dialog
+            const $dialogImg = $dialog.querySelector('img')
+            const $currentImg = $cont.querySelector('img')
+            const imgSrc = $currentImg.getAttribute('src')
+            console.log(imgSrc)
+            $cont.addEventListener('click', () => {
+                $dialogImg.src = imgSrc
+                $dialog.showModal()
+            })
+        })
+        $close.addEventListener('click', () => $dialog.close())
+    }
+</script>
+</html>
